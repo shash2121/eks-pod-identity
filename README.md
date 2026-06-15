@@ -70,7 +70,3 @@ terraform apply
 - Database passwords are marked as `sensitive` and have no defaults.
 - Secrets are stored in AWS Secrets Manager and synced to Kubernetes via CSI driver.
 - Pod Identity is used instead of IRSA for IAM role association.
-
-## License
-
-MIT
