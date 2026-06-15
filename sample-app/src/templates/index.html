@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pod identity demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #0d1030 50%, #0a0a1a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.6) 0%, transparent 70%);
+            top: -100px;
+            left: -100px;
+        }
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.5) 0%, transparent 70%);
+            bottom: -50px;
+            right: -50px;
+        }
+        .orb-3 {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(20, 184, 166, 0.4) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            width: 90%;
+            padding: 20px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #818cf8, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.1rem;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+        .status-connected {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+        .status-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .info-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 15px;
+        }
+        .info-item label {
+            display: block;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+        .info-item value {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+            font-weight: 500;
+            word-break: break-all;
+        }
+        .data-section {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .data-section h3 {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            gap: 10px;
+        }
+        .data-row .id {
+            color: #818cf8;
+            font-family: monospace;
+            font-size: 0.85rem;
+            min-width: 30px;
+        }
+        .data-row .name {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            font-weight: 500;
+            min-width: 140px;
+        }
+        .data-row .email {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+            min-width: 180px;
+        }
+        .data-row .department {
+            color: #22c55e;
+            font-size: 0.8rem;
+            font-weight: 500;
+            min-width: 100px;
+            text-align: center;
+        }
+        .data-row .salary {
+            color: #f59e0b;
+            font-size: 0.85rem;
+            font-weight: 500;
+            min-width: 80px;
+            text-align: right;
+        }
+        .data-row .date {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.8rem;
+            min-width: 100px;
+            text-align: right;
+        }
+        .error-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            color: #ef4444;
+            font-family: monospace;
+            font-size: 0.85rem;
+            word-break: break-all;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 0.85rem;
+        }
+        .footer span {
+            color: #818cf8;
+        }
+    </style>
+</head>
+<body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    
+    <div class="container">
+        <div class="glass-card">
+            <div class="header">
+                <h1>Pod Identity Demo</h1>
+                <p>AWS EKS Pod Identity Agent connecting to RDS</p>
+            </div>
+            
+            <div style="text-align: center;">
+                {% if status.connected %}
+                <div class="status-badge status-connected">
+                    <span class="status-dot"></span>
+                    Connected to RDS
+                </div>
+                {% else %}
+                <div class="status-badge status-error">
+                    <span class="status-dot"></span>
+                    Connection Failed
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Database Host</label>
+                    <value>{{ status.host }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Database Name</label>
+                    <value>{{ status.database }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Username</label>
+                    <value>{{ status.user }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Timestamp</label>
+                    <value>{{ status.timestamp }}</value>
+                </div>
+                {% if status.rds_endpoint %}
+                <div class="info-item" style="grid-column: 1 / -1;">
+                    <label>RDS Endpoint</label>
+                    <value>{{ status.rds_endpoint }}</value>
+                </div>
+                {% endif %}
+                {% if status.rds_region %}
+                <div class="info-item">
+                    <label>AWS Region</label>
+                    <value>{{ status.rds_region }}</value>
+                </div>
+                {% endif %}
+                {% if status.rds_port %}
+                <div class="info-item">
+                    <label>RDS Port</label>
+                    <value>{{ status.rds_port }}</value>
+                </div>
+                {% endif %}
+                {% if status.rds_status %}
+                <div class="info-item">
+                    <label>RDS Status</label>
+                    <value>{{ status.rds_status }}</value>
+                </div>
+                {% endif %}
+                {% if status.version %}
+                <div class="info-item" style="grid-column: 1 / -1;">
+                    <label>MySQL Version</label>
+                    <value>{{ status.version }}</value>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if status.connected %}
+            <div class="data-section">
+                <h3>Data fetched from RDS</h3>
+                {% for row in status.rows %}
+                <div class="data-row">
+                    <span class="id">#{{ row[0] }}</span>
+                    <span class="name">{{ row[1] }}</span>
+                    <span class="email">{{ row[2] }}</span>
+                    <span class="department">{{ row[3] }}</span>
+                    <span class="salary">${{ "{:,.2f}".format(row[4]) }}</span>
+                    <span class="date">{{ row[5] }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if status.error %}
+            <div class="error-box">
+                <strong>Error:</strong> {{ status.error }}
+            </div>
+            {% endif %}
+            
+            <div class="footer">
+                Powered by <span>AWS EKS Pod Identity</span> + <span>Secrets Manager</span> + <span>RDS MySQL</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

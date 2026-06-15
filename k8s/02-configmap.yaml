@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dev-config
+  namespace: default
+data:
+  # RDS
+  DB_HOST: "rds-mysql"
+  DB_PORT: "3306"
+  DB_NAME: "urlshortener"
+  DB_IDENTIFIER: "dev-mysql-db"
+
+  # App config
+  JWT_EXPIRES_IN: "15m"
+  AUTH_PORT: "3001"
+  AWS_REGION: "us-east-1"
